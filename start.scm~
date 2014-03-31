@@ -148,28 +148,12 @@
 (define (addfunc name action)
   (set! funclist (cons (cons name action) funclist)))
 
-(define (tokenizer str end)
-  (if (= (string-length str) end)
-      (set! tokenlist (cons str tokenlist))
-       (if (char=? (string-ref str end) #\space)
-           (begin
-             (set! tokenlist (cons (substring str 0 end) tokenlist))
-             (tokenizer (substring str (+ end 1)) 1))
-           (tokenizer str (+ end 1)))))
 
-(define (tokenhandler)
-      
-       (if (integer? (string->number (car tokenlist)))
-           (begin
-             (push (string->number (car tokenlist)))
-             (set! tokenlist (cdr tokenlist)))))
-
-; stack()
+; stack
 (define stack `())
 (define temp 0)
 
 (define funclist `())
-(define tokenlist `())
 
 ; helpers
 
