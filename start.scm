@@ -8,7 +8,15 @@
                  ((equal? sym "SWAP") (swap))
                  ((equal? sym "STACK") (printall stack))
                  ((equal? sym "CLEAR") (clear))
-                 ((equal? sym ".") (printone)) ;wat
+                 ((equal? sym ".") (printone))
+		 ((equal? sym "+") (plus))
+		 ((equal? sym "-") (minus))
+		 ((equal? sym "*") (mult))
+		 ((equal? sym "/") (div))
+		 ((equal? sym "<") (less))
+		 ((equal? sym ">") (more))
+		 ((equal? sym "<=") (lesseq))
+		 ((equal? sym ">=") (moreeq))
                  )))
                  
 (define (push x) ; passive to be called when literal is found
@@ -45,28 +53,11 @@
           (display (car tempstack))
           (printall (cdr tempstack))))))
   
-
 (define (clear)
   (set! stack ()))
   
 (define (printone)
   (display (car stack)))
-
-
-; function definitions
-
-
-; arithmetic (sorta the same as operations)
-(define ari (lambda (op)
-                     (cond 
-                       ((equal? op "+") (plus))
-                       ((equal? op "-") (minus))
-                       ((equal? op "*") (mult))
-                       ((equal? op "/") (div))
-                       ((equal? op "<") (less))
-                       ((equal? op ">") (more))
-                       ((equal? op "<=") (lesseq))
-                       ((equal? op ">=") (moreeq)))))
 
 (define (plus)
   (begin
@@ -120,56 +111,58 @@
         (push 1)
         (cb (> y x)))))
 
+
 ; conditionals --  transitive -- code follows
-(define (ifcond action1 action2) 
+(define (ifcond tokens1 tokens2) 
   (define result (pop))
   (if (= result 1)
-      (display action1)
-      (display action2)
-      ;(parse action1)
-      ;(parse action2)
-      ))
+      (tokenhandler tokens1)
+      (tokenhandler tokens2)))
   
 
 ; loop (single definition?) transitive -- code follows
-(define (loop comp cond action)
+(define (loop comp condi tokens)
   (begin 
     (push comp)
-    (ari cond)
+    (oper condi)
     (if (= (top) 1)
         (begin
-          (display action)
-          ;(parse action)
-          (loop comp cond action)
-           )
+          (tokenhandler tokens)
+          (loop comp condi tokens))
         ())))
 
 ;functions 
-(define (addfunc name action)
-  (set! funclist (cons (cons name action) funclist)))
+(define (addfunc name tokens)
+  (set! funclist (cons (list name tokens) funclist)))
 
-(define (tokenizer str end)
+;tokens
+(define (tokenizer tokenlist str end)
+  (begin
   (if (= (string-length str) end)
-      (set! tokenlist (cons str tokenlist))
+      (set! tokenlist (append tokenlist (list str)))
        (if (char=? (string-ref str end) #\space)
            (begin
-             (set! tokenlist (cons (substring str 0 end) tokenlist))
-             (tokenizer (substring str (+ end 1)) 1))
-           (tokenizer str (+ end 1)))))
+             (set! tokenlist (append tokenlist (list (substring str 0 end))))
+             (set! tokenlist (tokenizer tokenlist (substring str (+ end 1)) 1)))
+          (set! tokenlist (tokenizer tokenlist str (+ end 1)))))
+  tokenlist))
 
-(define (tokenhandler)
-      
-       (if (integer? (string->number (car tokenlist)))
-           (begin
-             (push (string->number (car tokenlist)))
-             (set! tokenlist (cdr tokenlist)))))
+(define (tokenhandler tokenlist)
+       (begin     
+           (if (integer? (string->number (car tokenlist)))
+               (push (string->number (car tokenlist)))
+	       (oper (car tokenlist)))
+           (set! tokenlist (cdr tokenlist))
+           (if (null? tokenlist)
+	       ()
+	       (tokenhandler tokenlist))))	
+	
 
 ; stack()
 (define stack `())
 (define temp 0)
 
 (define funclist `())
-(define tokenlist `())
 
 ; helpers
 
