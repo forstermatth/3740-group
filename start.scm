@@ -1,5 +1,5 @@
 ; operations
-(define oper (lambda (sym)
+(define oper (lambda (sym tokenlist)
                (cond
                  ((equal? sym "DROP")(drop))
                  ((equal? sym "POP") (pop))
@@ -17,6 +17,7 @@
 		 ((equal? sym ">") (more))
 		 ((equal? sym "<=") (lesseq))
 		 ((equal? sym ">=") (moreeq))
+                 (else (findfunc sym funclist))
                  )))
                  
 (define (push x) ; passive to be called when literal is found
@@ -133,8 +134,26 @@
 
 ;functions 
 (define (addfunc name tokens)
-  (set! funclist (cons (list name tokens) funclist)))
+  (begin
+    (set! funclist (cons (list name (parsefunc tokens)) funclist))
+    (movetocnuf tokens)))
 
+(define (findfunc name list)
+  (if (equal? (car (car list)) name)
+      (tokenhandler (car (cdr (car list))))
+      (findfunc name (cdr list))))
+
+(define (parsefunc list)
+  (if(equal? (car list) "CNUF") 
+     () 
+     (cons (car list) (parsefunc (cdr list)))))
+
+(define (movetocnuf tokens)
+  (if(equal? (car tokens) "CNUF")
+     tokens
+     (movetocnuf (cdr tokens))))
+  
+      
 ;tokens
 (define (tokenizer tokenlist str end)
   (begin
@@ -151,11 +170,13 @@
        (begin     
            (if (integer? (string->number (car tokenlist)))
                (push (string->number (car tokenlist)))
-	       (oper (car tokenlist)))
+               (if(equal? (car tokenlist) "FUNC")
+                  (set! tokenlist (addfunc (car (cdr tokenlist)) (cdr (cdr tokenlist))))
+                  (oper (car tokenlist) (cdr tokenlist))))
            (set! tokenlist (cdr tokenlist))
-           (if (null? tokenlist)
+           (if (null? tokenlist) 
 	       ()
-	       (tokenhandler tokenlist))))	
+	       (tokenhandler tokenlist)))) 	
 	
 
 ; stack()
