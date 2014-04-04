@@ -1,6 +1,12 @@
 ; operations
 (define oper (lambda (sym tokenlist)
                (cond
+                 ((integer? (string->number sym)) 
+                  (begin
+                    (push (string->number sym))
+                    (if (null? tokenlist)
+                        ()
+                        (oper (car tokenlist) (cdr tokenlist)))))
                  ((equal? sym "DROP")(drop))
                  ((equal? sym "POP") (pop))
                  ((equal? sym "SAVE") (save))
@@ -17,6 +23,8 @@
 		 ((equal? sym ">") (more))
 		 ((equal? sym "<=") (lesseq))
 		 ((equal? sym ">=") (moreeq))
+                 ((equal? sym "LOOP") (loopcomp () () ()))
+                 ((equal? sym "IF") (ifcond () ()))
                  (else (findfunc sym funclist))
                  )))
                  
@@ -122,7 +130,7 @@
   
 
 ; loop (single definition?) transitive -- code follows
-(define (loop comp condi tokens)
+(define (loopcomp comp condi tokens)
   (begin 
     (push comp)
     (oper condi)
@@ -182,6 +190,7 @@
 ; stack()
 (define stack `())
 (define temp 0)
+(define inputbuffer 0)
 
 (define funclist `())
 
@@ -194,5 +203,37 @@
 (define (top)
   (car stack))
 
+(define (lastof l)
+  (cond ((null? (cdr l)) (car l))
+        (else (lastof (cdr l)))))
 
+(define (removelast l)
+  (reverse (cdr (reverse l))))
+
+;parsing input
+(define input `())
+
+(define (uoflprompt)
+  (display "UOFL > ")
+  (read-line)
+  (set! input (removelast input))
+  (set! input (tokenizer `() (list->string input) 1))
+  (oper (car input) (cdr input))
+  (uoflprompt))
+  
+(define (read-line)
+  (begin
+    (set! inputbuffer (read-char))
+    (if (eof-object? inputbuffer) 
+        ()
+        (begin
+          (set! input (append input (list inputbuffer)))
+          (if (equal? #\newline (lastof input))
+              ()
+              (read-line))))))
+
+
+    
+              
+        
 
