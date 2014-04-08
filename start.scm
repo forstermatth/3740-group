@@ -1,12 +1,19 @@
+; globals
+(define stack `())
+(define prev2 `())
+(define temp 0)
+(define inputbuffer 0)
+(define input `())
+(define funclist `())
+
 ; operations
 (define oper (lambda (sym tokenlist)
+             (begin
+               (display stack)
                (cond
                  ((integer? (string->number sym)) 
                   (begin
-                    (push (string->number sym))
-                    (if (null? tokenlist)
-                        ()
-                        (oper (car tokenlist) (cdr tokenlist)))))
+                    (push (string->number sym))))
                  ((equal? sym "DROP")(drop))
                  ((equal? sym "POP") (pop))
                  ((equal? sym "SAVE") (save))
@@ -25,13 +32,12 @@
 		 ((equal? sym ">=") (moreeq))
                  ((equal? sym "LOOP") 
                   (begin
-                    (pop)
-                    (loopcomp tokenlist)
-                    (movetopool tokenlist)))
+                    (set! prev2 (removelast prev2)))
+                    (loopcomp (car prev2) (car (cdr prev2)) tokenlist))
                  ((equal? sym "IF") (ifcond () ()))
                  ((equal? sym "FUNC") (addfunc (car tokenlist)(cdr tokenlist)))
                  (else (findfunc sym funclist))
-                 )))
+                 ))))
                  
 (define (push x) ; passive to be called when literal is found
   (set! stack (cons x stack)))
@@ -43,7 +49,10 @@
     temp))
 
 (define (drop)
-  (set! stack (cdr stack)))
+  (begin
+    (define local (car stack))
+    (set! stack (cdr stack))
+    local))
          
 (define (save)
   (set! stack (cons temp stack)))
@@ -53,8 +62,8 @@
    
 (define (swap)
   (begin
-    (define first (pop))
-    (define second (pop))
+    (define first (drop))
+    (define second (drop))
     (push first)
     (push second)))
   
@@ -75,88 +84,78 @@
 
 (define (plus)
   (begin
-    (define x (pop))
-      (define y (pop))
+    (define x (drop))
+      (define y (drop))
        (push (+ y x))))
 
 (define (minus)
   (begin
-    (define x (pop))
-      (define y (pop))
+    (define x (drop))
+      (define y (drop))
        (push (- y x))))
 
 (define (mult)
   (begin
-    (define x (pop))
-      (define y (pop))
+    (define x (drop))
+      (define y (drop))
        (push (* y x))))
 
 (define (div)
   (begin
-    (define x (pop))
-      (define y (pop))
+    (define x (drop))
+      (define y (drop))
        (push (/ y x))))
 
 (define (less)
   (begin
-    (define x (pop))
-    (define y (pop))
+    (define x (drop))
+    (define y (drop))
     (cb (< y x))))
   
 (define (more)
   (begin
-    (define x (pop))
-    (define y (pop))
+    (define x (drop))
+    (define y (drop))
     (cb (> y x))))
   
 (define (lesseq)
   (begin
-    (define x (pop))
-    (define y (pop))
+    (define x (drop))
+    (define y (drop))
     (if (= x y)
         (push 1)
         (cb (< y x)))))
   
 (define (moreeq)
   (begin
-    (define x (pop))
-    (define y (pop))
+    (define x (drop))
+    (define y (drop))
     (if (= x y)
         (push 1)
         (cb (> y x)))))
 
-; conditionals --  transitive -- code follows
+; if
 (define (ifcond tokens1 tokens2) 
   (define result (pop))
   (if (= result 1)
       (tokenhandler tokens1)
       (tokenhandler tokens2)))
   
-; loop (single definition?) transitive -- code follows
-(define (loopcomp tokens)
-  (begin 
-    (push (string->number(car prev2)))
-    (oper (car(cdr prev2))'())
-      (if (= (top) 1)
+; loop
+(define (loopcomp condi comp tokens)
+  (begin
+    (if (= (top) 1)
         (begin
-          (tokenhandler (cdr(parseloop tokens)))
-          (loopcomp tokens))
+          (tokenhandler tokens)
+          (push (string->number condi))
+          (oper comp `())
+          (loopcomp condi comp tokens))
         ())))
-
-(define (parseloop list)
-  (if(equal? (car list) "POOL") 
-     () 
-     (cons (car list) (parseloop (cdr list)))))
-
-(define (movetopool tokens)
-  (if(equal? (car tokens) "POOL")
-     tokens
-     (movetopool (cdr tokens))))
 
 ;functions 
 (define (addfunc name tokens)
   (begin
-    (set! funclist (cons (list name (parsefunc tokens)) funclist))
+    (set! funclist (cons (list name (uptocnuf tokens)) funclist))
     (movetocnuf tokens)))
 
 (define (findfunc name list)
@@ -164,15 +163,6 @@
       (tokenhandler (car (cdr (car list))))
       (findfunc name (cdr list))))
 
-(define (parsefunc list)
-  (if(equal? (car list) "CNUF") 
-     () 
-     (cons (car list) (parsefunc (cdr list)))))
-
-(define (movetocnuf tokens)
-  (if(equal? (car tokens) "CNUF")
-     tokens
-     (movetocnuf (cdr tokens))))
   
       
 ;tokens
@@ -190,25 +180,28 @@
 (define (tokenhandler tokenlist)
        (begin
          (set! prev2 (append prev2 (list(car tokenlist))))
+         
          (if (< 3 (length prev2))
-             (begin
-               (printall (cdr prev2))
-                (set! prev2 (cdr prev2))()))
-           (if (integer? (string->number (car tokenlist)))
-               (push (string->number (car tokenlist)))
-               (oper (car tokenlist) (cdr tokenlist)))
-           (set! tokenlist (cdr tokenlist))
-           (if (null? tokenlist) 
-	       ()
-	       (tokenhandler tokenlist)))) 	
-	
-; stack()
-(define stack `())
-(define prev2 `())
-(define temp 0)
-(define inputbuffer 0)
-
-(define funclist `())
+           (set! prev2 (cdr prev2))
+           ())
+         
+         (cond 
+             ((equal? (car tokenlist) "LOOP")
+              (begin
+                (oper (car tokenlist) (uptopool (cdr tokenlist)))
+                (set! tokenlist (movetopool tokenlist))))
+             
+             ((equal? (car tokenlist) "FUNC")
+              (begin
+                (oper (car tokenlist) (uptocnuf (cdr tokenlist)))
+                (set! tokenlist (movetocnuf tokenlist))))
+             
+             (else (oper (car tokenlist) (cdr tokenlist))))
+         
+         (set! tokenlist (cdr tokenlist))
+         (if (null? tokenlist)
+	     ()
+	     (tokenhandler tokenlist))))
 
 ; helpers
 
@@ -226,9 +219,28 @@
 (define (removelast l)
   (reverse (cdr (reverse l))))
 
-;parsing input
-(define input `())
 
+(define (movetocnuf tokens)
+  (if(equal? (car tokens) "CNUF")
+     tokens
+     (movetocnuf (cdr tokens))))
+
+(define (movetopool tokens)
+  (if(equal? (car tokens) "POOL")
+     tokens
+     (movetopool (cdr tokens))))
+
+(define (uptopool tokens)
+  (if(equal? (car tokens) "POOL")
+     ()
+     (cons (car tokens) (uptopool (cdr tokens)))))
+
+(define (uptocnuf list)
+  (if(equal? (car list) "CNUF") 
+     () 
+     (cons (car list) (uptocnuf (cdr list)))))
+
+;parsing input
 (define (main)
   (display "UOFL > ")
   (set! input '())
@@ -251,7 +263,6 @@
           (if (equal? #\newline (lastof input))
               ()
               (read-line))))))
-
 
     
               
