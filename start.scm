@@ -6,6 +6,31 @@
 (define input `())
 (define funclist `())
 
+; helpers
+(define (cb bool)
+  (begin
+    (if bool (push 1) (push 0))))
+
+(define (top)
+  (car stack))
+
+(define (lastof l)
+  (cond ((null? (cdr l)) (car l))
+        (else (lastof (cdr l)))))
+
+(define (removelast l)
+  (reverse (cdr (reverse l))))
+
+(define (moveto tokens sentinel)
+  (if(equal? (car tokens) sentinel)
+     tokens
+     (moveto (cdr tokens) sentinel)))
+
+(define (upto tokens sentinel)
+  (if(equal? (car tokens) sentinel)
+     ()
+     (cons (car tokens) (upto (cdr tokens) sentinel))))
+
 ; operations
 (define oper (lambda (sym tokenlist)
              (begin
@@ -32,12 +57,13 @@
 		 ((equal? sym ">=") (moreeq))
                  ((equal? sym "LOOP") 
                   (begin
-                    (set! prev2 (removelast prev2)))
-                    (loopcomp (car prev2) (car (cdr prev2)) tokenlist))
-                 ((equal? sym "IF") (ifcond () ()))
-                 ((equal? sym "FUNC") (addfunc (car tokenlist)(cdr tokenlist)))
-                 (else (findfunc sym funclist))
-                 ))))
+                    (set! prev2 (removelast prev2))
+                    (loopcomp (car prev2) (car (cdr prev2)) tokenlist)))
+                 ((equal? sym "IF") 
+                    (ifcond (upto tokenlist "ELSE") (upto (cdr (moveto tokenlist "ELSE")) "THEN")))
+                 ((equal? sym "FUNC") (addfunc (car tokenlist) (cdr tokenlist)))
+                 (else (findfunc sym funclist)))
+                 )))
                  
 (define (push x) ; passive to be called when literal is found
   (set! stack (cons x stack)))
@@ -136,7 +162,7 @@
 
 ; if
 (define (ifcond tokens1 tokens2) 
-  (define result (pop))
+  (define result (drop))
   (if (= result 1)
       (tokenhandler tokens1)
       (tokenhandler tokens2)))
@@ -154,17 +180,13 @@
 
 ;functions 
 (define (addfunc name tokens)
-  (begin
-    (set! funclist (cons (list name (uptocnuf tokens)) funclist))
-    (movetocnuf tokens)))
+    (set! funclist (cons (list name tokens) funclist)))
 
 (define (findfunc name list)
   (if (equal? (car (car list)) name)
       (tokenhandler (car (cdr (car list))))
       (findfunc name (cdr list))))
 
-  
-      
 ;tokens
 (define (tokenizer tokenlist str end)
   (begin
@@ -184,61 +206,24 @@
          (if (< 3 (length prev2))
            (set! prev2 (cdr prev2))
            ())
-         
          (cond 
              ((equal? (car tokenlist) "LOOP")
               (begin
-                (oper (car tokenlist) (uptopool (cdr tokenlist)))
-                (set! tokenlist (movetopool tokenlist))))
-             
+                (oper (car tokenlist) (upto (cdr tokenlist) "POOL"))
+                (set! tokenlist (moveto tokenlist "POOL"))))
              ((equal? (car tokenlist) "FUNC")
               (begin
-                (oper (car tokenlist) (uptocnuf (cdr tokenlist)))
-                (set! tokenlist (movetocnuf tokenlist))))
-             
+                (oper (car tokenlist) (upto (cdr tokenlist) "CNUF"))
+                (set! tokenlist (moveto tokenlist "CNUF"))))
+             ((equal? (car tokenlist) "IF")
+              (begin
+                (oper (car tokenlist) (cdr tokenlist)))
+                (set! tokenlist (moveto tokenlist "THEN")))
              (else (oper (car tokenlist) (cdr tokenlist))))
-         
          (set! tokenlist (cdr tokenlist))
          (if (null? tokenlist)
 	     ()
 	     (tokenhandler tokenlist))))
-
-; helpers
-
-(define (cb bool)
-  (begin
-    (if bool (push 1) (push 0))))
-
-(define (top)
-  (car stack))
-
-(define (lastof l)
-  (cond ((null? (cdr l)) (car l))
-        (else (lastof (cdr l)))))
-
-(define (removelast l)
-  (reverse (cdr (reverse l))))
-
-
-(define (movetocnuf tokens)
-  (if(equal? (car tokens) "CNUF")
-     tokens
-     (movetocnuf (cdr tokens))))
-
-(define (movetopool tokens)
-  (if(equal? (car tokens) "POOL")
-     tokens
-     (movetopool (cdr tokens))))
-
-(define (uptopool tokens)
-  (if(equal? (car tokens) "POOL")
-     ()
-     (cons (car tokens) (uptopool (cdr tokens)))))
-
-(define (uptocnuf list)
-  (if(equal? (car list) "CNUF") 
-     () 
-     (cons (car list) (uptocnuf (cdr list)))))
 
 ;parsing input
 (define (main)
