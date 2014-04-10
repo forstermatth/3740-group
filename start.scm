@@ -33,8 +33,6 @@
 
 ; operations
 (define oper (lambda (sym tokenlist)
-             (begin
-               (display stack)
                (cond
                  ((integer? (string->number sym)) 
                   (begin
@@ -63,7 +61,7 @@
                     (ifcond (upto tokenlist "ELSE") (upto (cdr (moveto tokenlist "ELSE")) "THEN")))
                  ((equal? sym "FUNC") (addfunc (car tokenlist) (cdr tokenlist)))
                  (else (findfunc sym funclist)))
-                 )))
+                 ))
                  
 (define (push x) ; passive to be called when literal is found
   (set! stack (cons x stack)))
@@ -103,7 +101,7 @@
           (printall (cdr tempstack))))))
   
 (define (clear)
-  (set! stack ()))
+  (set! stack '()))
   
 (define (printone)
   (display (car stack))(newline))
@@ -176,16 +174,30 @@
           (push (string->number condi))
           (oper comp `())
           (loopcomp condi comp tokens))
-        ())))
+        (values))))
 
 ;functions 
 (define (addfunc name tokens)
-    (set! funclist (cons (list name tokens) funclist)))
+  (begin
+    (set! funclist (cons (list name tokens) funclist))
+    (printfuncs funclist)))
+
+(define (printfuncs funcs)
+  (if (pair? funcs)
+      (begin
+        (display (car(car funcs)))
+        (newline)
+        (printfuncs (cdr funcs)))
+      (values)))
 
 (define (findfunc name list)
-  (if (equal? (car (car list)) name)
-      (tokenhandler (car (cdr (car list))))
-      (findfunc name (cdr list))))
+  (if (pair? list)
+      (if (equal? (car (car list)) name)
+          (tokenhandler (car (cdr (car list))))
+            (findfunc name (cdr list)))
+      (begin
+        (display "Function not found")
+        (newline))))
 
 ;tokens
 (define (tokenizer tokenlist str end)
@@ -205,7 +217,7 @@
          
          (if (< 3 (length prev2))
            (set! prev2 (cdr prev2))
-           ())
+           (values))
          (cond 
              ((equal? (car tokenlist) "LOOP")
               (begin
@@ -222,7 +234,7 @@
              (else (oper (car tokenlist) (cdr tokenlist))))
          (set! tokenlist (cdr tokenlist))
          (if (null? tokenlist)
-	     ()
+	     (values)
 	     (tokenhandler tokenlist))))
 
 ;parsing input
@@ -240,13 +252,13 @@
   
 (define (read-line)
   (begin
-    (set! inputbuffer (read-char))
+    (set! inputbuffer (char-upcase(read-char)))
     (if (eof-object? inputbuffer) 
-        ()
+        (values)
         (begin
           (set! input (append input (list inputbuffer)))
           (if (equal? #\newline (lastof input))
-              ()
+              (values)
               (read-line))))))
 
     

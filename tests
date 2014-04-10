@@ -1,0 +1,166 @@
+;tests
+
+; ---------
+(clear)
+stack
+(display "expected: ()")
+(newline)
+
+; ---------
+(clear)
+(cb #t)
+stack
+(display "expected: (1)")
+(newline)
+
+; ---------
+(clear)
+(cb #f)
+stack
+(display "expected: (0)")
+(newline)
+
+; ---------
+(clear)
+(push 7)
+(top)
+(display "expected: 7")
+(newline)
+
+; ---------
+(clear)
+(define list '(1 2 3))
+(lastof list)
+(display "expected: 3")
+(newline)
+
+; ---------
+(clear)
+(define list '(4 5 6))
+(removelast list)
+(display "expected: (4 5)")
+(newline)
+
+; ---------
+(define tokens '("FUNC" "SQUARE" "DUP" "*" "CNUF" "1" "+"))
+(moveto tokens "CNUF")
+(display "expected: ('CNUF' '1' '+')")
+(newline)
+
+; ---------
+(upto tokens "CNUF")
+(display "expected: ('FUNC' 'SQUARE' 'DUP' '*')")
+(newline)
+
+; ---------
+(push 1)
+stack
+(display "expected: (1 0 1)")
+(newline)
+
+; ---------
+(pop)
+(display "expected: 1")
+(newline)
+
+; ---------
+stack
+(display "expected: (0 1)")
+(newline)
+temp
+(display "expected: 1")
+(newline)
+(drop)
+(display "expected: 0")
+(newline)
+temp
+(display "expected: 1")
+(newline)
+
+; ---------
+stack
+(display "expected: (1)")
+(newline)
+temp
+(display "expected: 1")
+(newline)
+(save)
+stack
+(display "expected: (1 1)")
+(newline)
+
+; ---------
+(dup)
+stack
+(display "expected: (1 1 1)")
+(newline)
+
+; ---------
+(push 0)
+(swap)
+stack
+(display "expected: (1 0 1 1)")
+(newline)
+
+; ---------
+(printall stack)
+(display "expected: 1 0 1 1 (with newlines)")
+(newline)
+
+; ---------
+(push 3)
+(printone)
+(display "expected: 3")
+(newline)
+
+; ---------
+(push 2)
+stack
+(display "expected: (2 3)")
+(newline)
+
+; ---------
+(minus) ; 3-2
+stack
+(display "expected: (1)")
+(newline)
+
+; ---------
+(push 5)
+stack
+(display "expected: (5 1)")
+(newline)
+(mult) ; 5*1
+stack
+(display "expected: (5)")
+
+; ---------
+(clear)
+(push 10)
+(push 2)
+(div) ;10/2
+stack
+(display "expected: (5)")
+(newline)
+
+; ---------
+(push 1)
+stack
+(display "expected: (1 5)")
+(newline)
+(less) ; 5<1
+stack
+(display "expected: (0)")
+(newline)
+
+; ---------
+(push 1)
+(push 5)
+stack
+(display "expected: (5 1 0)")
+(newline)
+(less) ; 1<5
+stack
+(display "expected: (1 0)")
+(newline)
+
