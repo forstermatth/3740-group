@@ -1,166 +1,421 @@
 ;tests
 
-; ---------
-(clear)
-stack
-(display "expected: ()")
+(display "--------- CLEAR")
 (newline)
+(clear)
+(display stack)
+(display " expected: ()")
+(newline)(newline)
 
-; ---------
+(display "--------- CB")
+(newline)
 (clear)
 (cb #t)
-stack
-(display "expected: (1)")
+(display stack)
+(display " expected: (1)")
+; --------
 (newline)
-
-; ---------
 (clear)
 (cb #f)
-stack
-(display "expected: (0)")
-(newline)
+(display stack)
+(display " expected: (0)")
+(newline)(newline)
 
-; ---------
+(display "--------- PUSH")
+(newline)
 (clear)
 (push 7)
-(top)
-(display "expected: 7")
-(newline)
+(display (top))
+(display " expected: 7")
+(newline)(newline)
 
-; ---------
+(display "--------- LASTOF")
+(newline)
 (clear)
-(define list '(1 2 3))
-(lastof list)
-(display "expected: 3")
-(newline)
+(define l '(1 2 3))
+(display (lastof l))
+(display " expected: 3")
+(newline)(newline)
 
-; ---------
+(display "--------- REMOVELAST")
+(newline)
 (clear)
-(define list '(4 5 6))
-(removelast list)
-(display "expected: (4 5)")
-(newline)
+(define l '(4 5 6))
+(display (removelast l))
+(display " expected: (4 5)")
+(newline)(newline)
 
-; ---------
+(display "--------- MOVETO")
+(newline)
+(clear)
 (define tokens '("FUNC" "SQUARE" "DUP" "*" "CNUF" "1" "+"))
-(moveto tokens "CNUF")
-(display "expected: ('CNUF' '1' '+')")
-(newline)
+(display (moveto tokens "CNUF"))
+(display " expected: (CNUF 1 +)")
+(newline)(newline)
 
-; ---------
-(upto tokens "CNUF")
-(display "expected: ('FUNC' 'SQUARE' 'DUP' '*')")
+(display "--------- UPTO")
 (newline)
+(clear)
+(define tokens '("FUNC" "SQ" "DUP" "*" "CNUF" "1" "+"))
+(display (upto tokens "CNUF"))
+(display " expected (FUNC SQ DUP *)")
+(newline)(newline)
 
-; ---------
+(display "--------- PUSH")
+(newline)
+(clear)
 (push 1)
-stack
-(display "expected: (1 0 1)")
-(newline)
+(display stack)
+(display " expected: (1)")
+(newline)(newline)
 
-; ---------
-(pop)
-(display "expected: 1")
+(display "--------- POP")
 (newline)
+(clear)
+(push 4)
+(display (pop))
+(display " expected: 4")
+(newline)
+(display stack)
+(display " expected: ()")
+(newline)(newline)
 
-; ---------
-stack
-(display "expected: (0 1)")
+(display "--------- DROP")
 (newline)
-temp
-(display "expected: 1")
+(clear)
+(push 3)
+(push 5)
+(display stack)
+(display " expected: (5 3)")
 (newline)
-(drop)
-(display "expected: 0")
+(display (drop))
+(display " expected: 5")
 (newline)
-temp
-(display "expected: 1")
-(newline)
+(display stack)
+(display " expected: (3)")
+(newline)(newline)
 
-; ---------
-stack
-(display "expected: (1)")
+(display "--------- SAVE")
 (newline)
-temp
-(display "expected: 1")
+(clear)
+(set! temp 7)
+(display temp)
+(display " expected: 7")
 (newline)
 (save)
-stack
-(display "expected: (1 1)")
-(newline)
+(display stack)
+(display " expected: (7)")
+(newline)(newline)
 
-; ---------
-(dup)
-stack
-(display "expected: (1 1 1)")
+(display "--------- DUP")
 (newline)
-
-; ---------
-(push 0)
-(swap)
-stack
-(display "expected: (1 0 1 1)")
-(newline)
-
-; ---------
-(printall stack)
-(display "expected: 1 0 1 1 (with newlines)")
-(newline)
-
-; ---------
-(push 3)
-(printone)
-(display "expected: 3")
-(newline)
-
-; ---------
-(push 2)
-stack
-(display "expected: (2 3)")
-(newline)
-
-; ---------
-(minus) ; 3-2
-stack
-(display "expected: (1)")
-(newline)
-
-; ---------
-(push 5)
-stack
-(display "expected: (5 1)")
-(newline)
-(mult) ; 5*1
-stack
-(display "expected: (5)")
-
-; ---------
 (clear)
-(push 10)
+(push 1)
+(push 4)
+(display stack)
+(display " expected: (4 1)")
+(newline)
+(dup)
+(display stack)
+(display " expected: (4 4 1)")
+(newline)(newline)
+
+(display "--------- SWAP")
+(newline)
+(clear)
+(push 1)
+(push 1)
+(push 1)
+(push 0)
+(display stack)
+(display " expected: (0 1 1 1)")
+(newline)
+(swap)
+(display stack)
+(display " expected: (1 0 1 1)")
+(newline)(newline)
+
+(display "---------- PRINTALL")
+(newline)
+(clear)
+(push 1)
 (push 2)
-(div) ;10/2
-stack
-(display "expected: (5)")
-(newline)
+(push 3)
+(printall stack)
+(display " expected: 3 2 1 (with newlines)")
+(newline) (newline)
 
-; ---------
-(push 1)
-stack
-(display "expected: (1 5)")
+(display "------------ PRINTONE")
 (newline)
-(less) ; 5<1
-stack
-(display "expected: (0)")
-(newline)
+(clear)
+(push 2)
+(push 6)
+(printone)
+(display " expected: 6")
+(newline)(newline)
 
-; ---------
+(display "----------- PLUS")
+(newline)
+(clear)
 (push 1)
+(push 3)
+(display stack)
+(display " expected: (3 1)")
+(newline)
+(plus)
+(display stack)
+(display " expected: (4)")
+(newline)(newline)
+
+(display "---------- MINUS")
+(newline)
+(clear)
+(push 7)
 (push 5)
-stack
-(display "expected: (5 1 0)")
+(display stack)
+(display " expected: (5 7)")
 (newline)
-(less) ; 1<5
-stack
-(display "expected: (1 0)")
+(minus)
+(display stack)
+(display " expected: (2)")
+(newline)(newline)
+
+(display "---------- MULT")
 (newline)
+(clear)
+(push 7)
+(push 2)
+(display stack)
+(display " expected: (2 7)")
+(newline)
+(mult)
+(display stack)
+(display " expected: (14)")
+(newline)(newline)
+
+(display "---------- DIV")
+(newline)
+(clear)
+(push 15)
+(push 5)
+(display stack)
+(display " expected: (5 15)")
+(newline)
+(div)
+(display stack)
+(display " expected: (3)")
+(newline)(newline)
+
+(display "---------- LESS")
+(newline)
+(clear)
+(push 4)
+(push 5)
+(display stack)
+(display " expected: (5 4)")
+(newline)
+(less)
+(display stack)
+(display " expected: (1)")
+;------
+(newline)
+(clear)
+(push 5)
+(push 4)
+(display stack)
+(display " expected: (4 5)")
+(newline)
+(less)
+(display stack)
+(display " expected: (0)")
+(newline)(newline)
+
+(display "---------- MORE")
+(newline)
+(clear)
+(push 5)
+(push 4)
+(display stack)
+(display " expected: (4 5)")
+(newline)
+(more)
+(display stack)
+(display " expected: (1)")
+;---------
+(newline)
+(clear)
+(push 4)
+(push 5)
+(display stack)
+(display " expected: (5 4)")
+(newline)
+(more)
+(display stack)
+(display " expected: (0)")
+(newline)(newline)
+
+(display "---------- MOREEQ")
+(newline)
+(clear)
+(push 7)
+(push 2)
+(display stack)
+(display " expected: (2 7)")
+(newline)
+(moreeq)
+(display stack)
+(display " expected: (1)")
+;---------
+(newline)
+(clear)
+(push 7)
+(push 7)
+(display stack)
+(display " expected: (7 7)")
+(newline)
+(moreeq)
+(display stack)
+(display " expected: (1)")
+(newline)(newline)
+
+(display "---------- LESSEQ")
+(newline)
+(clear)
+(push 5)
+(push 19)
+(display stack)
+(display " expected: (19 5)")
+(newline)
+(lesseq)
+(display stack)
+(display " expected: (1)")
+;---------
+(newline)
+(clear)
+(push 19)
+(push 19)
+(display stack)
+(display " expected: (19 19)")
+(newline)
+(lesseq)
+(display stack)
+(display " expected: (1)")
+(newline)(newline)
+
+(display "---------- IFCOND")
+(newline)
+(clear)
+(define testtrue '("1"))
+(define testfalse '("-1"))
+(push 20)
+(push 10)
+(more)
+(ifcond testtrue testfalse)
+(display stack)
+(display " expected: (1 1)")
+; -----------
+(newline)
+(clear)
+(define testtrue '("1"))
+(define testfalse '("-1"))
+(push 10)
+(push 20)
+(more)
+(ifcond testtrue testfalse)
+(display stack)
+(display " expected: (-1)")
+(newline)(newline)
+
+(display "---------- LOOPCOMP")
+(newline)
+(clear)
+(push 0)
+(push 1)
+(dup)
+(define looptokens '("DROP" "DUP" "POP" "+" "SAVE" "1" "+" "DUP"))
+(define comparison "<=")
+(define condition "10")
+(loopcomp condition comparison looptokens)
+(display stack)
+(display " expected: (0 11 55)")
+(newline)(newline)
+
+(display "---------- PRINTFUNCS")
+(newline)
+(set! funclist '())
+(clear)
+(set! funclist '( ("name1" "body1") ("name2" "body2")))
+(display funclist)
+(display " expected: ((name1 body1) (name2 body2))")
+(newline)
+(printfuncs funclist)
+(display " expected: name1 name2 (with newlines)")
+(newline)(newline)
+
+(display "---------- ADDFUNC")
+(newline)
+(set! funclist '())
+(clear)
+(display funclist)
+(display " expected: ()")
+(newline)
+(addfunc "name" '("body" "tokens"))
+(display " expected: name")
+(newline)
+(display funclist)
+(display " expected: ((name (body tokens)))")
+(newline)(newline)
+
+(display "--------- FINDFUNC")
+(newline)
+(set! funclist '())
+(clear)
+(addfunc "name" '("2" "2"))
+(addfunc "name2" '("1" "1"))
+(display " expected: name name2 name")
+(newline)
+(findfunc "name2" funclist)
+(display stack)
+(display " expected: (1 1)")
+(newline)(newline)
+
+(display "---------- TOKENIZER")
+(newline)
+(clear)
+(define astring "1 2 dup +")
+(display astring)
+(display " expected: 1 2 dup +")
+(newline)
+(define strtoken (tokenizer '() astring 1))
+(display strtoken)
+(display " expected: (1 2 dup +)")
+(newline)(newline)
+
+(display "---------- TOKENHANDLER")
+(newline)
+(clear)
+(define tokens '("1" "2" "DUP" "+"))
+(display tokens)
+(display " expected: (1 2 DUP +)")
+(newline)
+(tokenhandler tokens)
+(display stack)
+(display " expected: (4 1)")
+(newline)(newline)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

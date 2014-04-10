@@ -67,16 +67,27 @@
   (set! stack (cons x stack)))
 
 (define (pop)
-  (begin 
-    (set! temp (car stack))
-    (set! stack (cdr stack))
-    temp))
+  (begin
+    (if (null? stack)
+      (begin
+        (display "nothing to drop")
+        (newline))
+       (begin 
+         (set! temp (car stack))
+         (set! stack (cdr stack))
+         temp))))
 
 (define (drop)
   (begin
-    (define local (car stack))
-    (set! stack (cdr stack))
-    local))
+    (define local ())
+    (if (null? stack)
+      (begin
+        (display "nothing to drop")
+        (newline))
+      (begin
+        (set! local (car stack))
+        (set! stack (cdr stack))
+        local))))
          
 (define (save)
   (set! stack (cons temp stack)))
@@ -160,7 +171,7 @@
 
 ; if
 (define (ifcond tokens1 tokens2) 
-  (define result (drop))
+  (define result (top))
   (if (= result 1)
       (tokenhandler tokens1)
       (tokenhandler tokens2)))
@@ -177,11 +188,6 @@
         (values))))
 
 ;functions 
-(define (addfunc name tokens)
-  (begin
-    (set! funclist (cons (list name tokens) funclist))
-    (printfuncs funclist)))
-
 (define (printfuncs funcs)
   (if (pair? funcs)
       (begin
@@ -189,6 +195,11 @@
         (newline)
         (printfuncs (cdr funcs)))
       (values)))
+
+(define (addfunc name tokens)
+  (begin
+    (set! funclist (cons (list name tokens) funclist))
+    (printfuncs funclist)))
 
 (define (findfunc name list)
   (if (pair? list)
@@ -252,7 +263,9 @@
   
 (define (read-line)
   (begin
-    (set! inputbuffer (char-upcase(read-char)))
+    (set! inputbuffer (read-char))
+    (if (char? inputbuffer)
+        (set! inputbuffer (char-upcase inputbuffer)))
     (if (eof-object? inputbuffer) 
         (values)
         (begin
