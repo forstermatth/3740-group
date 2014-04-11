@@ -125,7 +125,7 @@
   (set! stack '()))
   
 (define (printone)
-  (display (newline)(car stack))(newline))
+  (newline)(display (car stack))(newline))
 
 (define (plus)
   (begin
