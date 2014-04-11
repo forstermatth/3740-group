@@ -1,10 +1,11 @@
 ; globals
-(define stack `())
-(define prev2 `())
+(define stack '())
+(define history '())
+(define numbers '())
 (define temp 0)
 (define inputbuffer 0)
-(define input `())
-(define funclist `())
+(define input '())
+(define funclist '())
 
 ; helpers
 (define (cb bool)
@@ -31,14 +32,16 @@
      ()
      (cons (car tokens) (upto (cdr tokens) sentinel))))
 
+
 ; operations
 (define oper (lambda (sym tokenlist)
-               (begin
-                 (display stack)
                (cond
-                 ((integer? (string->number sym)) 
-                  (begin
-                    (push (string->number sym))))
+                 ((integer? (string->number sym))
+                   (set! numbers (append numbers (list(string->number sym))))
+                   (if (< 2 (length history))
+                        (set! history (cdr history))
+                        (values))
+                    (push (string->number sym)))
                  ((equal? sym "DROP")(drop))
                  ((equal? sym "POP") (pop))
                  ((equal? sym "SAVE") (save))
@@ -57,16 +60,17 @@
 		 ((equal? sym ">=") (moreeq))
                  ((equal? sym "LOOP") 
                   (begin
-                    (set! prev2 (removelast prev2))
-                    (loopcomp (car prev2) (car (cdr prev2)) tokenlist)))
+                    (set! history (removelast history))
+                    (loopcomp (car numbers) (car (cdr history)) tokenlist)
+                    (set! numbers '())))
                  ((equal? sym "IF") 
                     (ifcond (upto tokenlist "ELSE") (upto (cdr (moveto tokenlist "ELSE")) "THEN")))
                  ((equal? sym "FUNC") (addfunc (car tokenlist) (cdr tokenlist)))
                  (else (findfunc sym funclist)))
-                 )))
+                 ))
                  
 (define (push x) ; passive to be called when literal is found
-  (set! stack (cons x stack)))
+    (set! stack (cons x stack)))
 
 (define (pop)
   (begin
@@ -92,7 +96,7 @@
         local))))
          
 (define (save)
-  (set! stack (cons temp stack)))
+  (push temp))
          
 (define (dup)
   (set! stack (cons (car stack) stack)))
@@ -184,8 +188,10 @@
     (if (= (top) 1)
         (begin
           (tokenhandler tokens)
-          (oper condi '())
-          (oper comp `())
+          (if (number? condi)
+              (push condi)
+              (push (string->number condi)))
+          (oper comp '())
           (loopcomp condi comp tokens))
         (values))))
 
@@ -227,10 +233,10 @@
 
 (define (tokenhandler tokenlist)
        (begin
-         (set! prev2 (append prev2 (list(car tokenlist))))
+         (set! history (append history (list(car tokenlist))))
          
-         (if (< 3 (length prev2))
-           (set! prev2 (cdr prev2))
+         (if (< 3 (length history))
+           (set! history (cdr history))
            (values))
          (cond 
              ((equal? (car tokenlist) "LOOP")

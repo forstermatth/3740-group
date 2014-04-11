@@ -323,7 +323,7 @@
 (more)
 (ifcond testtrue testfalse)
 (display stack)
-(display " expected: (-1)")
+(display " expected: (-1 0)")
 (newline)(newline)
 
 (display "---------- LOOPCOMP")
