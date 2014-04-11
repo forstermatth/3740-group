@@ -33,6 +33,8 @@
 
 ; operations
 (define oper (lambda (sym tokenlist)
+               (begin
+                 (display stack)
                (cond
                  ((integer? (string->number sym)) 
                   (begin
@@ -61,7 +63,7 @@
                     (ifcond (upto tokenlist "ELSE") (upto (cdr (moveto tokenlist "ELSE")) "THEN")))
                  ((equal? sym "FUNC") (addfunc (car tokenlist) (cdr tokenlist)))
                  (else (findfunc sym funclist)))
-                 ))
+                 )))
                  
 (define (push x) ; passive to be called when literal is found
   (set! stack (cons x stack)))
@@ -182,7 +184,7 @@
     (if (= (top) 1)
         (begin
           (tokenhandler tokens)
-          (push (string->number condi))
+          (oper condi '())
           (oper comp `())
           (loopcomp condi comp tokens))
         (values))))
@@ -207,7 +209,8 @@
           (tokenhandler (car (cdr (car list))))
             (findfunc name (cdr list)))
       (begin
-        (display "Function not found")
+        (display "Function not found: ")
+        (display name)
         (newline))))
 
 ;tokens
