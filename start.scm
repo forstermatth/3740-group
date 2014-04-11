@@ -65,7 +65,7 @@
                  ((equal? sym "LOOP") 
                   (begin
                     (set! history (removelast history))
-                    (loopcomp (lastof numbers)) (car (cdr history)) tokenlist)
+                    (loopcomp (lastof numbers) (car (cdr history)) tokenlist)
                     (set! numbers '())))
                  ((equal? sym "IF") 
                     (ifcond (upto tokenlist "ELSE") (upto (cdr (moveto tokenlist "ELSE")) "THEN")))
