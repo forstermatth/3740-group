@@ -1,11 +1,11 @@
 ; globals
-(define stack '())
-(define history '())
-(define numbers '())
-(define temp 0)
-(define inputbuffer 0)
-(define input '())
-(define funclist '())
+(define stack '())     ; the stack
+(define history '())   ; history of the last symbols used
+(define numbers '())   ; number history specific to loops
+(define temp 0)        ; the temp storage
+(define inputbuffer 0) ; the input buffer
+(define input '())     ; the input string
+(define funclist '())  ; the list of functions
 
 ; helpers
 (define (cb bool)
@@ -268,6 +268,7 @@
        (set! input (removelast input))
        (set! input (tokenizer `() (list->string input) 1))
        (tokenhandler input)
+       (set! numbers '())
        (main))))
   
 (define (read-line)
