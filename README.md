@@ -126,7 +126,7 @@ __Token Logic__
 
 __Input Logic__ 
 ------------------------------------
-###### Eight 
+###### Eighth Code Section
 
   * `main`
     - Starts the input prompt
@@ -135,7 +135,7 @@ __Input Logic__
 
 # Testing
 
-All tests are located in "tests" file.
+All tests are located in "tests" file. Run `(load "tests")` after loading the main file to display the tests.
 When the file is run it will display each test name and will show the output of the test alond with the expected output.
 For example, the push test pushes 7 onto the stack and then displays the following message:
 7 expected: 7
