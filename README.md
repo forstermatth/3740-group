@@ -8,6 +8,17 @@
   * Justin Werre  - justin.werre@uleth.ca
   * Josh Enns     - ennsj@uleth.ca
   
+# Running the Program
+
+1. Start either `mzscheme` or `drscheme` IDE from the root directory of the project.
+2. execute `(load "start.scm")`
+3. To test the program, execute `(load "tests")`
+4. If using `mzscheme`
+   - Load the input prompt by executing `(main) 1`. You will see a function error message, ignore it.
+5. If using `drscheme`
+   - Load the input prompt by executing `(main)`.
+
+
 # Program Organization
   
   __Strings are not supported.__
