@@ -3,24 +3,27 @@
 
 ###### Repo for 3740 Scheme project
 
-#### Group Members:
-  Matt Forster  - matt.forster@uleth.ca
-  Justin Werre  - justin.werre@uleth.ca
-  Josh Enns     - ennsj@uleth.ca
+##### Group Members:
+  * Matt Forster  - matt.forster@uleth.ca
+  * Justin Werre  - justin.werre@uleth.ca
+  * Josh Enns     - ennsj@uleth.ca
   
-# Program Organization:
+# Program Organization
   
   __Strings are not supported.__
 
-__Globals__ _First Code Section_
+__Globals__ 
 ------------------------------------
+###### First Code Section 
+
 
   All global variables are declared at the top of the code.
   The globals consist of all the static storage the program needs from the input buffer to the stack itself.
 
 
-__Helpers__ _Second Code Section_
+__Helpers__ 
 ------------------------------------
+###### Second Code Section
 
   * `cb`
     - Convert Boolean, takes a boolean type and pushes either 0 or 1
@@ -35,8 +38,9 @@ __Helpers__ _Second Code Section_
   * `upto`
     - Returns a list of elements that existed _befores_ the sentenial given
 
-__Operations__ _Third Code Section_
+__Operations__ 
 ------------------------------------
+###### Third Code Section
 
   * `oper` 
     - primary function that analyses the token and calls the appropriate operation function.
@@ -75,20 +79,23 @@ __Operations__ _Third Code Section_
   * `moreeq`
       - Compares the two top items of the stack with greater than or equal, pushes the result
 
-__If Logic__ _Fourth Code Section_
+__If Logic__ 
 ------------------------------------
+###### Fourth Code Section
 
   * `ifcond`
     - Takes two token lists, executes one or the other depending on the state of the stack,
 
-__Loop Logic__ _Fifth Code Section_
+__Loop Logic__ 
 ------------------------------------
+###### Fifth Code Section
 
   * `loopcomp`
     - Takes the comparison, condition, and loop tokens and executes the tokens an amount of times depending on the state of the stack.
 
-__Function Logic__ _Sixth Code Section_
+__Function Logic__ 
 ----------------------------------------
+###### Sixth Code Section
 
   * `printfuncs`
     - Prints the names of the functions
@@ -97,16 +104,18 @@ __Function Logic__ _Sixth Code Section_
   * `findfunc`
     - Finds a function in the list and executes it
 
-__Token Logic__ _Seventh Code Section_
+__Token Logic__ 
 ---------------------------------------
+###### Seventh Code Section
 
   * `tokenizer`
     - Takes a complete string of tokens and turns it into a list of tokens
   * `tokenhandler`
     - Takes a list of tokens and executes each one separately
 
-__Input Logic__ _Eight_ 
+__Input Logic__ 
 ------------------------------------
+###### Eight 
 
   * `main`
     - Starts the input prompt
